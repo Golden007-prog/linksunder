@@ -1,0 +1,14 @@
+name: Bug report
+description: Report a reproducible defect without private data
+body:
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps, expected behavior, actual behavior
+      description: Use the bundled demo or a minimal public reproduction. Omit secrets.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: OS, Node and browser versions
