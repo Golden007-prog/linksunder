@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { chromium } from 'playwright';
 export function browserOptions() {
   if (process.env.LINKSUNDER_BROWSER) return { executablePath: process.env.LINKSUNDER_BROWSER };
-  if (existsSync(chromium.executablePath())) return {};
+  if (existsSync(chromium.executablePath())) return { executablePath: chromium.executablePath() };
   if (process.platform === 'win32') {
     for (const executablePath of [
       'C:/Program Files/Google/Chrome/Application/chrome.exe',

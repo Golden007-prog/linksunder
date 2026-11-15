@@ -185,7 +185,7 @@ export async function execute(
     run.error = signal.aborted
       ? 'Run cancelled.'
       : run.steps.at(-1)?.message ||
-        'Browser or page could not start. Run npm run setup and check the target URL.';
+        'Browser or page could not start. Restart the application and check the target URL.';
     run.advice =
       outcome === 'fail'
         ? 'Preserve drafts until the server confirms success. Handle rejected requests and show a recoverable error.'

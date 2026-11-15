@@ -9,16 +9,19 @@ import { validateTarget } from './security.js';
 import { htmlReport } from './report.js';
 // Demo is copied into the production output by TypeScript.
 import { demoPage } from '../demo/page.js';
-const production = process.argv[1].replaceAll('\\', '/').includes('/dist/');
+const production =
+  process.env.LINKSUNDER_PRODUCTION === '1' ||
+  process.argv[1].replaceAll('\\', '/').includes('/dist/');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const projectRoot = production ? path.dirname(root) : root;
 const data = path.resolve(process.env.LINKSUNDER_DATA || path.join(projectRoot, 'data'));
 await mkdir(data, { recursive: true });
 const app = Fastify({ logger: false, bodyLimit: 150000 });
 const port = Number(process.env.PORT || 4317);
-const origin = `http://127.0.0.1:${port}`;
+let origin = `http://127.0.0.1:${port}`;
 const runs = new Map<string, Run>();
 let active: AbortController | undefined;
+let activeTask: Promise<void> | undefined;
 for (const file of (await readdir(data)).filter((x) => /^[a-f0-9-]+\.json$/.test(x))) {
   try {
     const r = JSON.parse(await readFile(path.join(data, file), 'utf8')) as Run;
@@ -69,10 +72,11 @@ async function start(raw: unknown) {
   runs.set(run.id, run);
   const controller = new AbortController();
   active = controller;
-  void execute(parsed.data, run, controller.signal)
+  activeTask = execute(parsed.data, run, controller.signal)
     .catch(() => {
       run.status = controller.signal.aborted ? 'cancelled' : 'error';
-      run.error = 'Chromium could not start. Run npm run setup.';
+      run.error =
+        'The test browser could not start. Restart LinkSunder or reinstall the desktop application.';
     })
     .finally(async () => {
       try {
@@ -86,6 +90,7 @@ async function start(raw: unknown) {
     });
   return run;
 }
+app.get('/api/info', async () => ({ reportDirectory: data }));
 app.get('/api/runs', async () =>
   [...runs.values()].reverse().map((r) => ({ ...r, screenshots: [] })),
 );
@@ -157,10 +162,11 @@ if (production) {
 }
 app.addHook('onClose', async () => {
   active?.abort();
+  await activeTask;
 });
 for (const sig of ['SIGINT', 'SIGTERM'] as const)
   process.on(sig, () => {
     void app.close().then(() => process.exit(0));
   });
-await app.listen({ host: '127.0.0.1', port });
+origin = await app.listen({ host: '127.0.0.1', port });
 console.log(`LinkSunder ready: ${origin}`);

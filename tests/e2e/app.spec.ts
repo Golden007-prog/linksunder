@@ -64,6 +64,12 @@ test('builds and runs an assertion through the no-code UI', async ({ page }) => 
   await page.getByLabel('Scenario name').fill('My own UI assertion');
   await page.getByRole('button', { name: 'Add step' }).click();
   await page.getByLabel('Step 1 selector').fill('#note');
+  await page.getByRole('button', { name: 'Save scenario', exact: true }).click();
+  await expect(page.getByRole('status')).toContainText('Scenario saved');
+  await page.reload();
+  await page.getByRole('button', { name: 'New test', exact: true }).click();
+  await page.getByLabel('Saved scenarios').selectOption('My own UI assertion');
+  await expect(page.getByLabel('Step 1 selector')).toHaveValue('#note');
   await page.getByRole('button', { name: 'Run Test', exact: true }).click();
   await expect(page.getByRole('link', { name: 'Download JSON Report' })).toBeVisible();
   await expect(page.locator('.heading .badge')).toHaveText('pass');
