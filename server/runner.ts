@@ -25,6 +25,7 @@ export async function execute(
   update: () => void = () => {},
 ) {
   const start = Date.now();
+  let outcome: Run['status'] = 'error';
   let context: BrowserContext | undefined;
   const browser = await chromium.launch({
     ...browserOptions(),
@@ -88,7 +89,9 @@ export async function execute(
       ];
       run.screenshots.push(
         'data:image/png;base64,' +
-          (await page.screenshot({ mask: masks, fullPage: false })).toString('base64'),
+          (await page.screenshot({ mask: masks, maskColor: '#37344d', fullPage: false })).toString(
+            'base64',
+          ),
       );
     };
     await page.goto(target.href, { waitUntil: 'domcontentloaded', timeout: s.timeout });
@@ -172,9 +175,9 @@ export async function execute(
         update();
       }
     }
-    run.status = run.assertions ? 'pass' : 'observed';
+    outcome = run.assertions ? 'pass' : 'observed';
   } catch {
-    run.status = signal.aborted
+    outcome = signal.aborted
       ? 'cancelled'
       : run.steps.some((x) => x.status === 'fail' && ['check', 'value'].includes(x.action))
         ? 'fail'
@@ -184,7 +187,7 @@ export async function execute(
       : run.steps.at(-1)?.message ||
         'Browser or page could not start. Run npm run setup and check the target URL.';
     run.advice =
-      run.status === 'fail'
+      outcome === 'fail'
         ? 'Preserve drafts until the server confirms success. Handle rejected requests and show a recoverable error.'
         : 'Check page selectors, URL permissions, browser setup and timeout. No unverified assertion is counted as passed.';
   } finally {
@@ -193,6 +196,7 @@ export async function execute(
     await context?.setOffline(false).catch(() => {});
     await browser.close().catch(() => {});
     run.duration = Date.now() - start;
+    run.status = outcome;
     update();
   }
 }
