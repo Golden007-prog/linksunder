@@ -19,11 +19,11 @@ Example for the bundled form:
   "url": "http://127.0.0.1:4317/demo/fixed",
   "type": "failure",
   "steps": [
-    {"action":"fill","selector":"#note","value":"Keep this draft"},
-    {"action":"fail","path":"/demo/api/messages"},
-    {"action":"click","selector":"#send"},
-    {"action":"check","selector":"#status[data-state='error']"},
-    {"action":"value","selector":"#note","value":"Keep this draft"}
+    { "action": "fill", "selector": "#note", "value": "Keep this draft" },
+    { "action": "fail", "path": "/demo/api/messages" },
+    { "action": "click", "selector": "#send" },
+    { "action": "check", "selector": "#status[data-state='error']" },
+    { "action": "value", "selector": "#note", "value": "Keep this draft" }
   ]
 }
 ```

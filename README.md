@@ -35,10 +35,10 @@ For a production build: `npm run build`, then `npm run start`.
 The bundled note form has two implementations. A real Chromium session fills a
 draft, goes offline, clicks Send, waits for the error state, and checks the field.
 
-| Scenario | Expected evidence |
-| --- | --- |
-| Broken | FAIL: the form clears the draft before the request succeeds |
-| Fixed | PASS: the draft survives the failed send and reconnection |
+| Scenario | Expected evidence                                           |
+| -------- | ----------------------------------------------------------- |
+| Broken   | FAIL: the form clears the draft before the request succeeds |
+| Fixed    | PASS: the draft survives the failed send and reconnection   |
 
 The demo uses no external service. Its two results are saved to your real history.
 
@@ -104,11 +104,11 @@ rule-based suggestions. English UI; Persian documentation included.
 
 ## Compared with existing tools
 
-| Tool | Best fit |
-| --- | --- |
-| Browser DevTools | Manual network inspection and throttling in an interactive session |
-| Playwright | Code-first browser automation with arbitrary assertions |
-| LinkSunder | A small local UI for repeatable network-failure scenarios and portable evidence |
+| Tool             | Best fit                                                                        |
+| ---------------- | ------------------------------------------------------------------------------- |
+| Browser DevTools | Manual network inspection and throttling in an interactive session              |
+| Playwright       | Code-first browser automation with arbitrary assertions                         |
+| LinkSunder       | A small local UI for repeatable network-failure scenarios and portable evidence |
 
 LinkSunder uses Playwright; it complements these tools and does not replace their flexibility.
 References: [Chrome network tools](https://developer.chrome.com/docs/devtools/network/),
