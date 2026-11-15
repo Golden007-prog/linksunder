@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 module.exports = async function verifyBundledBrowser(context) {
-  const directory = path.join(context.appDir, 'build', 'browsers');
+  const directory = path.join(context.packager.projectDir, 'build', 'browsers');
   if (!fs.existsSync(directory))
     throw new Error('Bundled Chromium is missing. Run npm run desktop:browser before packaging.');
   const files = fs.readdirSync(directory, { recursive: true });
