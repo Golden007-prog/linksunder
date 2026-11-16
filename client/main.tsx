@@ -48,7 +48,7 @@ async function api<T>(url: string, body?: unknown): Promise<T> {
 const initial = () =>
   scenarioSchema.parse({
     name: 'Untitled resilience test',
-    url: 'http://127.0.0.1:4317/demo/fixed',
+    url: window.location.origin + '/demo/fixed',
   });
 function App() {
   const [view, setView] = useState('dashboard');
@@ -61,6 +61,36 @@ function App() {
   const [timeout, setTimeoutValue] = useState(Number(localStorage.getItem('timeout') || 10000));
   const [json, setJson] = useState('');
   const [nextDemo, setNextDemo] = useState<Scenario>();
+  const [savedScenarios, setSavedScenarios] = useState<Scenario[]>(() => {
+    try {
+      const saved: unknown = JSON.parse(localStorage.getItem('scenarios') || '[]');
+      return Array.isArray(saved)
+        ? saved
+            .filter((s) => scenarioSchema.safeParse(s).success)
+            .map((s) => scenarioSchema.parse(s))
+        : [];
+    } catch {
+      return [];
+    }
+  });
+  const [notice, setNotice] = useState('');
+  const [reportDirectory, setReportDirectory] = useState('Local report storage');
+  useEffect(() => {
+    api<{ reportDirectory: string }>('/api/info')
+      .then((info) => setReportDirectory(info.reportDirectory))
+      .catch(() => {});
+  }, []);
+  function saveScenario() {
+    const result = scenarioSchema.safeParse(scenario);
+    if (!result.success) {
+      setError('Enter a scenario name, valid URL and valid settings before saving.');
+      return;
+    }
+    const next = [...savedScenarios.filter((s) => s.name !== result.data.name), result.data];
+    localStorage.setItem('scenarios', JSON.stringify(next));
+    setSavedScenarios(next);
+    setNotice('Scenario saved on this computer.');
+  }
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     localStorage.setItem('theme', theme);
@@ -270,11 +300,18 @@ function App() {
                     <br />
                     before your users do.
                   </p>
-                  <button className="primary" disabled={pending || active} onClick={runDemo}>
-                    <FlaskConical size={17} /> {pending ? 'Starting…' : 'Run Demo'}{' '}
-                    <ChevronRight size={16} />
-                  </button>
-                  <small>Two real runs. One broken form. One fixed form.</small>
+                  <div className="buttons">
+                    <button className="primary" onClick={() => setView('create')}>
+                      <Plus size={17} /> Create a Test
+                    </button>
+                    <button className="secondary" disabled={pending || active} onClick={runDemo}>
+                      <FlaskConical size={17} /> {pending ? 'Starting…' : 'Run Demo'}{' '}
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                  <small>
+                    Test your own website. The optional demo shows a real failure and recovery.
+                  </small>
                 </div>
                 <div className="diagram" aria-hidden="true">
                   <div className="node">YOUR APP</div>
@@ -403,6 +440,41 @@ function App() {
               >
                 <section className="panel form">
                   <h2>Test configuration</h2>
+                  {notice && <p role="status">{notice}</p>}
+                  <div className="buttons">
+                    <button type="button" className="secondary" onClick={saveScenario}>
+                      Save scenario
+                    </button>
+                  </div>
+                  {savedScenarios.length > 0 && (
+                    <label>
+                      Saved scenarios
+                      <select
+                        defaultValue=""
+                        onChange={(e) => {
+                          const saved = savedScenarios.find((s) => s.name === e.target.value);
+                          if (saved) {
+                            setScenario(saved);
+                            setNotice('Saved scenario loaded.');
+                          }
+                        }}
+                      >
+                        <option value="" disabled>
+                          Choose a saved scenario
+                        </option>
+                        {savedScenarios.map((s) => (
+                          <option key={s.name} value={s.name}>
+                            {s.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  )}
+                  <p className="hint">
+                    Saved scenarios stay on this computer and may contain your test inputs. With
+                    custom steps, add Offline, Fail API or Delay API explicitly where the disruption
+                    should happen.
+                  </p>
                   <div className="columns">
                     <label>
                       Scenario name
@@ -763,8 +835,7 @@ function App() {
                 <dl>
                   <dt>Report storage</dt>
                   <dd>
-                    Project data/ directory. Set LINKSUNDER_DATA before startup to choose a
-                    different location.
+                    {reportDirectory}. Use Download Report to save a copy wherever you choose.
                   </dd>
                   <dt>Browser</dt>
                   <dd>

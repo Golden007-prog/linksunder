@@ -6,11 +6,58 @@ A local, open-source resilience lab for websites you own. Build a browser scenar
 disconnect the network, fail an API, or delay selected requests — then check whether
 your UI preserves the state that matters. No account, cloud service, or AI API.
 
+### Download the application
+
+**[⬇ Download for Windows — EXE installer](https://github.com/kavianpcx/linksunder/releases/download/v0.2.0/LinkSunder-0.2.0-Windows-x64.exe)** · **[⬇ Download for Linux — DEB installer](https://github.com/kavianpcx/linksunder/releases/download/v0.2.0/LinkSunder-0.2.0-Linux-amd64.deb)**
+
+**Download → Install → Open LinkSunder.** No terminal commands or developer tools required.
+On Windows, open the downloaded EXE, finish installation, then open LinkSunder from Start or the desktop shortcut.
+
 [راهنمای فارسی](README.fa.md) · [Scenarios](docs/scenarios.md) · [Security](SECURITY.md)
 
 ![Real dashboard after running both demo scenarios](docs/screenshots/dashboard.png)
 
-## Quick start
+## Download and open — no terminal
+
+**[Download LinkSunder for your computer](https://github.com/kavianpcx/linksunder/releases/latest)**
+
+LinkSunder is a desktop application, with the real test engine included. Users do
+not install Node.js, npm, Git or Playwright and do not type commands to start it.
+There is no trial mode, demo-only edition, account or paid feature gate.
+
+| Platform                             | File                                                                                                                         | What to do                                                                                                            |
+| ------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Windows 11, x64                      | [Download EXE installer](https://github.com/kavianpcx/linksunder/releases/download/v0.2.0/LinkSunder-0.2.0-Windows-x64.exe)  | Open the installer, finish installation, then open LinkSunder from Start or the desktop shortcut.                     |
+| Windows, x64 portable                | [Download ZIP](https://github.com/kavianpcx/linksunder/releases/download/v0.2.0/LinkSunder-0.2.0-Windows-x64.zip)            | Extract the entire folder and open `LinkSunder.exe`. Keep its resources beside it.                                    |
+| Ubuntu / Debian desktop, x64         | [Download DEB installer](https://github.com/kavianpcx/linksunder/releases/download/v0.2.0/LinkSunder-0.2.0-Linux-amd64.deb)  | Open it in the system software installer, install, then launch LinkSunder from Applications.                          |
+| Other compatible Linux desktops, x64 | [Download AppImage](https://github.com/kavianpcx/linksunder/releases/download/v0.2.0/LinkSunder-0.2.0-Linux-x86_64.AppImage) | Allow execution in file Properties, then double-click. System library/FUSE compatibility depends on the distribution. |
+
+The desktop packages include the application runtime and test Chromium. They start
+their engine automatically on loopback and stop it when the window closes. The
+engine never needs to be started by the user. Reports are saved in application
+data, outside the installation folder, and can be downloaded to any chosen folder.
+The installer does not remove reports on uninstall. Installers currently have no
+commercial code-signing certificate; follow your organization's publisher policy.
+Do not disable operating-system protections to run a download.
+
+**Android and iOS:** no APK, native mobile app or hosted iOS PWA is shipped. The
+current product scope is Windows and Linux desktop, following the owner's clarified
+requirements. A responsive UI does not mean a standalone mobile test engine exists.
+
+### First test
+
+1. Open LinkSunder and select **New Test**.
+2. Enter the address of a website you own, choose your steps and expected result.
+3. Select **Run Test**, inspect the timeline, then **Download Report**.
+4. Use **Save scenario** to reuse it later. Saved scenarios may contain your test inputs.
+
+The optional **Run Demo** button is a guided example inside the full application,
+not a restriction on testing your own sites. There are no pre-filled fake results.
+
+<details>
+<summary>For developers only: build and run from source</summary>
+
+## Build from source
 
 Requires **Node.js 22.12+** (24 LTS recommended), npm, and Git.
 
@@ -29,6 +76,8 @@ If the browser CDN is unavailable, set `LINKSUNDER_BROWSER` to an installed Chro
 executable before setup and startup. No administrator rights are required by this app.
 
 For a production build: `npm run build`, then `npm run start`.
+
+</details>
 
 ## Demo: the same failure, two different outcomes
 
@@ -98,8 +147,8 @@ This is a trusted, single-user developer tool, **not a sandbox for hostile sites
 DNS checks are not connection-level IP pinning and cannot eliminate DNS rebinding.
 Browser background traffic, WebRTC and arbitrary third-party page behavior are not
 fully sandboxed by HTTP routing. See [SECURITY.md](SECURITY.md) before external tests.
-Scenarios are currently imported/exported as files; there is no scenario library,
-authentication flow, full browser recorder, or automatic repair advice beyond
+Scenarios can be saved on this computer or imported/exported as files; there is no browser recorder,
+authentication flow, or automatic repair advice beyond
 rule-based suggestions. English UI; Persian documentation included.
 
 ## Compared with existing tools

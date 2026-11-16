@@ -1,6 +1,6 @@
 {
   "name": "linksunder",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "Local, assertion-driven network resilience testing with Playwright",
@@ -9,17 +9,22 @@
     "minimatch": "^11.0.1"
   },
   "engines": {
-    "node": ">=22.12.0"
+    "node": "\u003e=22.12.0"
   },
   "scripts": {
     "setup": "node scripts/setup.mjs",
     "dev": "tsx server/index.ts",
-    "build": "vite build && tsc -p tsconfig.server.json",
+    "build": "vite build \u0026\u0026 tsc -p tsconfig.server.json",
     "start": "node dist/server/index.js",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit && tsc -p tsconfig.server.json --noEmit"
+    "typecheck": "tsc --noEmit \u0026\u0026 tsc -p tsconfig.server.json --noEmit",
+    "desktop:dev": "npm run build \u0026\u0026 electron .",
+    "desktop:browser": "node scripts/bundle-browser.mjs",
+    "desktop:pack": "npm run build \u0026\u0026 electron-builder --dir",
+    "desktop:dist": "npm run build \u0026\u0026 electron-builder --publish never",
+    "test:desktop": "node scripts/test-desktop.mjs"
   },
   "dependencies": {
     "@fastify/static": "^10.1.11",
@@ -38,6 +43,8 @@
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "electron": "^45.3.2",
+    "electron-builder": "^26.18.0",
     "eslint": "^10.15.0",
     "prettier": "^3.10.1",
     "tsx": "^4.20.0",
@@ -45,5 +52,7 @@
     "typescript-eslint": "^8.72.2",
     "vite": "^7.1.0",
     "vitest": "^5.1.0"
-  }
+  },
+  "main": "desktop/main.cjs",
+  "author": "LinkSunder contributors"
 }

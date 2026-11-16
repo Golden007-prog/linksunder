@@ -1,0 +1,40 @@
+name: Publish tested desktop packages
+on:
+  workflow_dispatch:
+    inputs:
+      build_run:
+        description: Successful Desktop packages run ID
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      BUILD_RUN: ${{ inputs.build_run }}
+    steps:
+      - name: Verify tested build and obtain its commit
+        run: |
+          [[ "$BUILD_RUN" =~ ^[0-9]+$ ]] || exit 1
+          gh api "repos/$GH_REPO/actions/runs/$BUILD_RUN" > build.json
+          jq -e '.name == "Desktop packages" and .status == "completed" and .conclusion == "success" and .head_branch == "main" and .event == "workflow_dispatch"' build.json
+          echo "BUILD_SHA=$(jq -r .head_sha build.json)" >> "$GITHUB_ENV"
+      - name: Download verified packages
+        run: gh run download "$BUILD_RUN" --dir packages
+      - name: Fetch release notes from the tested commit
+        run: |
+          gh api "repos/$GH_REPO/contents/docs/release-v0.2.0.md?ref=$BUILD_SHA" --jq .content | base64 --decode > notes.md
+          gh api "repos/$GH_REPO/contents/package.json?ref=$BUILD_SHA" --jq .content | base64 --decode > package.json
+          jq -e '.version == "0.2.0"' package.json
+      - name: Publish desktop release with all four downloads
+        run: |
+          mapfile -d '' assets < <(find packages -type f \( -name '*.exe' -o -name '*.zip' -o -name '*.deb' -o -name '*.AppImage' \) -print0)
+          [[ "${#assets[@]}" -eq 4 ]] || exit 1
+          gh release create v0.2.0 --target "$BUILD_SHA" --title 'LinkSunder v0.2.0 — desktop applications' --notes-file notes.md "${assets[@]}"

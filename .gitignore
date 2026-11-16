@@ -1,4 +1,7 @@
 node_modules/
+build/
+release/
+.desktop-test-data/
 dist/
 data/
 .e2e-data/
